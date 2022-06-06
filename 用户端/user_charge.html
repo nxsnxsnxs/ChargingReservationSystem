@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+	</head>
+	<body>
+		<div id="app">
+			<div class="navigationbar" style="height: 80px;width: 100%;text-align: center;">
+				<button @click="appointment" style="height: 40px; width: 100px;">预约充电</button>
+				<button @click="changeRequest" style="height: 40px; width: 100px;">修改请求</button>
+				<button @click="cancelcharge" style="height: 40px; width: 100px;">取消订单</button>
+			</div>
+			<div v-show="showrequest">
+				<div
+					style="height: 250px; width: 360px;margin-left:38%;border-style:solid;border-bottom-style:black;text-align:center;background-color:white;">
+					<div style="text-align: center;font-size: 20px;padding-top:20px;">预约充电</div>
+					<div style="margin-top:10px; display: inline-block; width: 40%;">
+						<p>充电模式</p>
+					</div>
+					<div style="text-align: left; display: inline-block; width: 40%;">
+						<input type="radio" name=sexRadio @click="selectfast()" />快充
+						<input type="radio" name=sexRadio @click="selectslow()" />慢充
+					</div>
+					<div style=" display: inline-block; width: 40%;">
+						<p>请求充电量</p>
+					</div>
+					<div style="margin-right:20px; display: inline-block; width: 40%;">
+						<input v-model="chargesum"></input>
+					</div>
+					<div style="margin-top:20px;text-align: center; width: 100%;">
+						<button style="height: 40px; width: 100px;" @click="submitrequest">提交</button>
+						<button style="height: 40px; width: 100px;" @click="quit">取消</button>
+					</div>
+				</div>
+			</div>
+			<div v-show="showchange">
+				<div
+					style="height: 300px; width: 360px;margin-left:38%;border-style:solid;border-bottom-style:black;text-align:center;background-color:white;">
+					<div style="text-align: center;font-size: 20px;padding-top:20px;">修改请求</div>
+
+					<div style="margin-top: 20px;">
+						<button style="height: 30px; width: 100px;" @click="show1">修改充电量</button>
+						<button style="height: 30px; width: 100px;" @click="show2">修改充电模式</button>
+					</div>
+					<div>
+						<div v-show="showchangemode">
+							<div style="margin-top:20px; display: inline-block; width: 40%;">
+								<p>充电模式</p>
+							</div>
+							<div style="text-align: left; display: inline-block; width: 40%;">
+								<input type="radio" name=sexRadio @click="selectfast()" />快充
+								<input type="radio" name=sexRadio @click="selectslow()" />慢充
+							</div>
+							<div style="margin-top:20px;text-align: center; width: 100%;">
+								<button style="height: 40px; width: 100px;" @click="submitchangesum">提交</button>
+								<button style="height: 40px; width: 100px;" @click="quit">取消</button>
+							</div>
+						</div>
+						<div v-show="showchangesum">
+							<div style=" margin-top:20px;display: inline-block; width: 40%;">
+								<p>请求充电量</p>
+							</div>
+							<div style="margin-right:20px; display: inline-block; width: 40%;">
+								<input v-model="chargesum"></input>
+							</div>
+							<div style="margin-top:20px;text-align: center; width: 100%;">
+								<button style="height: 40px; width: 100px;" @click="submitchangemode">提交</button>
+								<button style="height: 40px; width: 100px;" @click="quit">取消</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<script src="./js/vue.js"></script>
+		<script>
+			const app = new Vue({
+				el: '#app',
+				data: {
+					showrequest: false, //预约充电
+					showchange: false, //修改请求
+					chargesum: 0, //充电量
+					chargemode: 0, //充电模式 0代表快充 1代表慢充
+					showchangesum: false, //修改充电量
+					showchangemode: false, //修改充电模式
+				},
+				methods: {
+					appointment: function() {
+						console.log("预约充电");
+						this.showrequest = true;
+						this.showchange = false;
+						this.showchangemode = false;
+						this.showchangesum = false;
+					},
+					changeRequest: function() {
+						console.log("修改请求");
+						this.showrequest = false;
+						this.showchange = true;
+					},
+					submitrequest: function() {
+						console.log("充电量" + this.chargesum + " 充电模式" + this.chargemode);
+						this.showrequest = false;
+						this.showchange = false;
+						this.showchangemode = false;
+						this.showchangesum = false;
+						//向后端提交请求
+					},
+					show1: function() {
+						this.showchangesum = true;
+						this.showchangemode = false;
+					},
+					show2: function() {
+						this.showchangesum = false;
+						this.showchangemode = true;
+					},
+					submitchangesum: function() {
+						console.log("修改充电模式" + this.chargemode);
+						this.showrequest = false;
+						this.showchange = false;
+						this.showchangemode = false;
+						this
+							.showchangesum = false;
+						//向后端提交请求
+					},
+					submitchangemode: function() {
+						console.log("修改充电模式 " + this.chargemode);
+						this.showrequest = false;
+						this.showchange = false;
+						this.showchangemode =false;
+						this.showchangesum = false;
+						//向后端提交请求
+					},
+					cancelcharge:function(){
+						//向后端提出请求
+						this.showrequest = false;
+						this.showchange = false;
+						this.showchangemode =false;
+						this.showchangesum = false;
+					},
+					selectfast: function() {
+						this.chargemode = 0;
+					},
+					selectslow: function() {
+						this.chargemode = 1;
+					},
+					quit: function() {
+						this.showrequest = false;
+						this.showchange = false;
+						this.showchangemode = false;
+						this.showchangesum = false;
+					}
+				},
+			})
+		</script>
+	</body>
+</html>

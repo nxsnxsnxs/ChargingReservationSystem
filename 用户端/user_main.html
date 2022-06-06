@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<link rel="stylesheet" href="/css/user.css">
+		<title>用户端</title>
+		<style>
+			.select{
+				padding-top: 10px;
+				background-color:#4deaea; 
+				height: 30px; 
+				width: 100px;
+				font-size:15px;
+				color:white;
+			}
+			.default{
+					padding-top: 10px;
+					background-color:white; 
+					height: 30px; 
+					width: 100px;
+					font-size:15px;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="app" style="background: url('./img/chargeback.jpg') bottom center no-repeat;
+    background-size: 100% 100%;">
+			<div class="header" style="height: 80px;width: 100%;background-color:cornflowerblue;">
+				<h2 style=" padding-top:20px;text-align:center; margin:0;color: white;">智能充电桩调度计费系统-用户端</h2>
+				<h3 style="margin:0;padding-left:700px;color: azure;">302班-G组</h3>
+			</div>
+			<div class="toggle"
+				style="margin:0;background-color:#5c8cd3;height: 40px;width: 100%;text-align:center;">
+				<div style="padding-left:650px;display: flex; flex-direction: row;">
+					<div :class="select1?'select':'default'" @click="togglePanel('user_charge.html')" >充电</div>
+					<div :class="select2?'select':'default'" @click="togglePanel('user_account.html')" >个人中心</div>
+				</div>
+			</div>
+			<div >
+				<iframe id="content" frameborder="0" width="100%" height="1000" style="  height: 800px;
+				width: 100%;margin-top:15px;"></iframe>
+			</div>
+		</div>
+		<script src="./js/vue.js"></script>
+		<script>
+			const app = new Vue({
+				el: '#app',
+				data: {
+					select1:true,
+					select2:false
+				},
+				methods: {
+					togglePanel: function(panel) {
+						if(panel=='user_account.html'){
+							this.select2=true;
+							this.select1=false;
+						}
+						else{
+							this.select1=true;
+							this.select2=false;
+						}
+						document.getElementById("content").src = panel;
+					}
+				},
+				created(){
+					document.getElementById("content").src = 'user_charge.html';
+				}
+			})
+		</script>
+	</body>
+</html>

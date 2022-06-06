@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<link rel="stylesheet" href="/css/user.css">
+	</head>
+	<body>
+		<div class="navigationbar" style="height: 80px;width: 100%;text-align: center;">
+			<button onclick="changePassword()" style="height: 40px; width: 100px;">修改密码</button>
+			<button onclick="showBills()" style="height: 40px; width: 100px;">我的订单</button>
+			<button onclick="logOut()" style="height: 40px; width: 100px;">登出</button>
+		</div>
+		<iframe frameborder="0" id="content" width="100%"></iframe>
+	</body>
+	<script>
+		class Bill{
+			constructor(date, elec, price){
+				this.date = date;
+				this.elec = elec;
+				this.price = price;
+			}
+		}
+		function changePassword() {
+			pwPanel = document.getElementById("content");
+			pwPanel.height = 260;
+			text = 	`
+			<div style="height: 240px; width: 360px;margin-left:38%;border-style:solid;border-bottom-style:black;text-align:center;background-color:white;">
+				<div style="text-align: right; display: inline-block; width: 40%;">
+					<p>密码</p>
+				</div>
+				<div style="text-align: left; display: inline-block; width: 40%;">
+					<input id="oldpw" type='password'></input>
+				</div>
+				<div style="text-align: right; display: inline-block; width: 40%;">
+					<p>新密码</p>
+				</div>
+				<div style="text-align: left; display: inline-block; width: 40%;">
+					<input id="newpw" type='password'></input>
+				</div>
+				<div style="text-align: right; display: inline-block; width: 40%;">
+					<p>确认输入新密码</p>
+				</div>
+				<div style="text-align: left; display: inline-block; width: 40%;">
+					<input id="newpw_confirm" type='password'></input>
+				</div>
+				<div style="text-align: center; width: 100%;">
+					<button style="height: 40px; width: 100px;" onclick="submitChangePassword">提交</button>
+				</div>
+			</div>`;
+			pwPanel.contentDocument.body.innerHTML = text;
+		}
+		function submitChangePassword(){
+			oldpw = document.getElementById("oldpw").val;
+			newpw = document.getElementById("newpw").val;
+			newpw_confirm = document.getElementById("newpw_confirm").val;
+
+			if (newpw == newpw_confirm) {
+				
+			}
+			else {
+
+			}
+		}
+		function showBills() {
+			billsPanel = document.getElementById("content");
+			billsPanel.frameborder = "1";
+			bills = [new Bill("2019-3-1 12:30", "45", "100"), new Bill("2019-3-1 12:30", "45", "100"), new Bill("2019-3-1 12:30", "45", "100")];
+			tableHeight = bills.length * 40;
+			billsPanel.height = tableHeight * 1.1;
+			result = `<table border='1' width='100%'`;
+			result += "<tr><th>时间</th><th>充电度数</th><th>金额</th></tr>"
+			for (let index = 0; index < bills.length; index++) {
+				bill = bills[index];
+				result += `<tr><th>${bill.date}</th><th>${bill.elec}</th><th>${bill.price}</th></tr>`;
+			}
+			result += "</table>";
+			billsPanel.contentDocument.body.innerHTML = result;
+		}
+		function logOut(){
+
+		}
+	</script>
+</html>

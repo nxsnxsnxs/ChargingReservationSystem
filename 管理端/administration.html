@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title>管理员端</title>
+		<style>
+			.operation {
+				border-style: solid;
+				border-color: grey;
+				height: 400px;
+				width: 50%;
+				background-color: white;
+				filter: opacity(0.8);
+			}
+
+			.reportshow {
+				border-style: solid;
+				border-color: grey;
+				height: 400px;
+				width: 50%;
+				background-color: white;
+				filter: opacity(0.8);
+			}
+
+			.status {
+				border-style: solid;
+				border-color: grey;
+				height: 500px;
+				width: 50%;
+				background-color: white;
+				filter: opacity(0.8);
+			}
+
+			.waiting {
+				border-style: solid;
+				border-color: grey;
+				height: 500px;
+				width: 50%;
+				background-color: white;
+				filter: opacity(0.8);
+			}
+
+			.tabselected {
+				color: red;
+				background-color: aliceblue;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="app" style="background: url('./img/chargeback.jpeg') bottom center no-repeat;
+    background-size: 100% 100%;">
+			<h1 style=" padding-top:20px;text-align:center; margin:0;background-color:white;filter: opacity(0.8);">
+				智能充电桩调度计费系统-管理员端</h1>
+			<h2 style="margin:0;padding-left:1050px;background-color:white;filter: opacity(0.8);">302班-G组</h2>
+			<div style="display: flex; flex-direction: row;width:100%;">
+
+				<!-- 启动/关闭在充电桩 -->
+				<div class="operation">
+					<h2 style="margin:0;text-align:center; border-bottom-style:solid;border-bottom-color:grey">启动/关闭充电桩
+					</h2>
+					<div style="display: flex; flex-direction: row;margin-top:50px;">
+						<div v-for="(item,index) in pilelist"
+							style="width:20%;border-bottom-style:solid;border-top-style:solid;">
+							<p style="text-align:center;">
+								<image :src="item.status=='open'?item.imgurl2:item.imgurl"></image>
+							</p>
+							<div style="text-align:center;padding-bottom:20px;">{{item.id}}号充电桩</div>
+							<div style="text-align:center;">
+								<button @click="openpile(index)">开启</button>
+								<button @click="closepile(index)">关闭</button>
+							</div>
+
+						</div>
+					</div>
+				</div>
+				
+				
+				<!-- 报表展示 -->
+				<div class="reportshow">
+					<h2 style="margin:0;text-align:center; border-bottom-style:solid;border-bottom-color:grey">报表展示</h2>
+					<div style="display: flex; flex-direction: row;margin-top:50px;">
+						<div v-for="(item,index) in pilelist"
+							style="width:20%;border-bottom-style:solid;border-top-style:solid;">
+							<p style="text-align:center;">
+								<image :src="item.status=='open'?item.imgurl2:item.imgurl"></image>
+							</p>
+							<div style="text-align:center;padding-bottom:20px;">{{item.id}}号充电桩</div>
+							<div style="text-align:center;">
+								<button @click="showreport(index)">点击查看报表</button>
+							</div>
+					
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div style="display: flex; flex-direction: row;width:100%;">
+				<!-- 查看充电桩状态 -->
+				<div class="status">
+					<h2 style="margin:0;text-align:center; border-bottom-style:solid;border-bottom-color:grey">查看充电桩状态
+					</h2>
+					<div style="border-style:solid;border-color:white;height:425px;">
+						<div style="float:left;">
+							<div :class="item.isselected? 'tabselected': '' " v-for="(item,index) in pilelist"
+								style="text-align:center;height:81px;width:140px;border-style:solid;border-color:grey;border-radius:8px;margin-top:2px;"
+								@click="showstatus(index)">
+								<p style="margin-top:30px;">{{item.id}}号充电桩</p>
+							</div>
+						</div>
+						<div style="color:red;margin-left:300px;margin-top:40px;font-size:20px;">{{show_id}}号充电桩状态</div>
+						<div style="margin-left:150px;display: flex; flex-direction: row;margin-top:20px;">
+							<div style="margin-left:90px;">
+								<p style="margin-left:7px;font-size:20px;">工作状态</p>
+								<p style="font-size:25px;color:red;text-align:center;">{{show_status}}</p>
+							</div>
+							<div style="margin-left:68px;">
+								<p style="font-size:20px;">累计充电次数</p>
+								<p style="text-align:center;font-size:25px;color:red;">{{show_charge_times}}次</p>
+							</div>
+						</div>
+						<div style="display: flex; flex-direction: row;margin-top:40px;">
+							<div style="margin-left:90px;">
+								<p style="font-size:20px;">充电总时长</p>
+								<p style="text-align:center;font-size:25px;color:red;">{{show_total_time}}H</p>
+							</div>
+							<div style="margin-left:80px;">
+								<p style="font-size:20px;">充电总电量</p>
+								<p style="text-align:center;font-size:25px;color:red;">{{show_total_electricity}}度</p>
+							</div>
+						</div>
+
+
+					</div>
+				</div>
+
+
+				<!-- 查看充电桩等候车辆信息-->
+				<div class="waiting">
+					<h2 style="margin:0;text-align:center; border-bottom-style:solid;border-bottom-color:grey">
+						查看充电桩等候车辆信息</h2>
+					<div style="border-style:solid;border-color:white;height:425px;">
+						<div style="float:left;">
+							<div :class="item.isselected2? 'tabselected': '' " v-for="(item,index) in pilelist"
+								style="text-align:center;height:81px;width:140px;border-style:solid;border-color:grey;border-radius:8px;margin-top:2px;"
+								@click="showwaiting(index)">
+								<p style="margin-top:30px;">{{item.id}}号充电桩</p>
+							</div>
+						</div>
+						<div v-show="!waitingshow" style="margin-top:80px;color:red;font-size:30px;text-align:center;">
+							请选择要查看等候队列的充电桩</div>
+						<div v-show="(!ishavewait)&waitingshow"
+							style="margin-top:80px;color:red;font-size:30px;text-align:center;">
+							当前充电桩没有等待队列</div>
+						<div v-show="waitingshow&&ishavewait">
+							<p style="text-align:center;font-size:20px;color:red;">{{show_waiting_id}}号充电桩车辆等候列表</p>
+							<div style="text-align:center;font-size:15px;display: flex; flex-direction: row;">
+								<div style="margin-left:85px;">用户ID</div>
+								<div style="margin-left:15px;">车辆电池总容量(度)</div>
+								<div style="margin-left:15px;">请求充电量(度)</div>
+								<div style="margin-left:15px;">排队时长(min)</div>
+							</div>
+							<div style="margin-left:210px;margin-top:10px;">
+								<div v-for="item in waitingcars"
+									style="text-align:center;font-size:15px;display: flex; flex-direction: row;">
+									<div style=" height:40px;width:80px;">
+										<p style="text-align:center;">{{item.usrid}}</p>
+									</div>
+									<div style="margin-left:30px;height:40px;width:80px;">
+										<p style="text-align:center;">{{item.capacity}}</p>
+									</div>
+									<div style="margin-left:50px;height:40px;width:80px;">
+										<p style="text-align:center;">{{item.request_capacity}}</p>
+									</div>
+									<div style="margin-left:30px;height:40px;width:80px;">
+										<p style="text-align:center;">{{item.request_capacity }}</p>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+			</div>
+		</div>
+		<script src="./js/vue.js"></script>
+		<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+		<script>
+			const app = new Vue({
+				el: '#app',
+				data: {
+
+					//用于查看充电桩状态的展示
+					show_id: 23, //充电桩编号
+					show_type: 'slow', //充电桩类型
+					show_status: '正常工作', //0代表关闭，1代表打开，2代表故障
+					show_charge_times: 0, //累计充电次数
+					show_total_time: 0, //充电总时长
+					show_total_electricity: 0, //充电总电量
+
+					//初始时没有指定查询哪个充电桩的等待队列
+					waitingshow: false,
+					show_waiting_id: 0,
+					ishavewait: false, //充电桩是否有等待队列
+					pilelist: [{
+							id: 0, //充电桩编号
+							type: 'fast', //充电桩类型
+							status: 'close', //0代表关闭，1代表打开，2代表故障
+							charge_times: 0, //累计充电次数
+							total_time: 0, //充电总时长
+							total_electricity: 10, //充电总电量
+							imgurl: "./img/fast.jpg",
+							imgurl2:"./img/fast2.jpg",
+							isselected: true,
+							isselected2: false
+						},
+						{
+							id: 1, //充电桩编号
+							type: 'fast', //充电桩类型
+							status: 'close', //0代表关闭，1代表打开，2代表故障
+							charge_times: 0, //累计充电次数
+							total_time: 0, //充电总时长
+							total_electricity: 20, //充电总电量
+							imgurl: "./img/fast.jpg",
+							imgurl2:"./img/fast2.jpg",
+							isselected: false,
+							isselected2: false
+						},
+						{
+							id: 2, //充电桩编号
+							type: 'slow', //充电桩类型
+							status: 'close', //0代表关闭，1代表打开，2代表故障
+							charge_times: 0, //累计充电次数
+							total_time: 0, //充电总时长
+							total_electricity: 30, //充电总电量
+							imgurl: "./img/slow.png",
+							imgurl2:"./img/slow2.png",
+							isselected: false,
+							isselected2: false
+						},
+						{
+							id: 3, //充电桩编号
+							type: 'slow', //充电桩类型
+							status: 'close', //0代表关闭，1代表打开，2代表故障
+							charge_times: 0, //累计充电次数
+							total_time: 0, //充电总时长
+							total_electricity: 40, //充电总电量
+							imgurl: "./img/slow.png",
+							imgurl2:"./img/slow2.png",
+							isselected: false,
+							isselected2: false
+						},
+						{
+							id: 4, //充电桩编号
+							type: 'slow', //充电桩类型
+							status: 'close', //0代表关闭，1代表打开，2代表故障
+							charge_times: 0, //累计充电次数
+							total_time: 0, //充电总时长
+							total_electricity: 50, //充电总电量
+							imgurl: "./img/slow.png",
+							imgurl2:"./img/slow2.png",
+							isselected: false,
+							isselected2: false
+						},
+
+					],
+
+					waitingcars: [],//等待列表
+					reportlist: []//报表
+				},
+				methods: {
+					openpile: function(index) { //开启充电桩
+						console.log(this.pilelist[index].id);
+						var that=this;
+
+						axios.put('http://localhost:8080/admin/switch/' + this.pilelist[index].id + '/' + 'open').then(
+							(res) => {
+								console.log(res);
+								if (res.data == true) {
+									console.log(this.pilelist[index].id + "开机成功");
+									alert(this.pilelist[index].id + "开机成功");
+									that.show_status="open";
+								} else {
+									console.log(this.pilelist[index].id + "已处与开机状态")
+									alert(this.pilelist[index].id + "已处与开机状态");
+									that.show_status="open";
+								}
+								
+								//更新前端的状态信息
+								axios.get('http://localhost:8080/admin/check')
+									.then(res => {
+										for (var i = 0; i < 5; i++) {
+											that.pilelist[i].status = res.data[i].state;
+										}
+										console.log("充电桩状态");
+										console.log(this.pilelist);
+									})
+							}
+						)
+					},
+					closepile: function(index) { //关闭充电桩
+						var that=this;
+						axios.put('http://localhost:8080/admin/switch/' + this.pilelist[index].id + '/' + 'close').then(
+							(res) => {
+								console.log(res);
+								if (res.data == true) {
+									console.log(this.pilelist[index].id + "关机成功");
+									alert(this.pilelist[index].id + "关机成功");
+									that.show_status="close";
+								} else {
+									console.log(this.pilelist[index].id + "已处与关机状态")
+									alert(that.pilelist[index].id + "已处与关机状态");
+									that.show_status="close";
+
+								}
+								
+								//更新前端的状态信息
+								axios.get('http://localhost:8080/admin/check')
+									.then(res => {
+										for (var i = 0; i < 5; i++) {
+											this.pilelist[i].status = res.data[i].state;
+										}
+										console.log("充电桩状态");
+										console.log(this.pilelist);
+									})
+							}
+						)
+					},
+					showwaiting: function(index) { //查看充电桩等待车辆队列
+						var that = this;
+						this.waitingcars=[];
+						console.log(index);
+						this.waitingshow = true;
+						this.pilelist[index].isselected2 = true;
+						for (var i = 0; i < this.pilelist.length; i++) {
+							if (i != index) {
+								this.pilelist[i].isselected2 = false;
+							}
+						}
+
+						axios.get('http://localhost:8080/admin/waitcar/' + this.pilelist[index].id, {})
+							.then((res) => {
+								console.log(res);
+								if (res.data.length == 0) {
+									console.log("没有等待车辆");
+									that.ishavewait = false;
+								} else {
+									that.ishavewait = true;
+									for (var i = 0; i < res.data.length; i++) {
+										that.waitingcars.push({
+											"usrid": res.data[i].userId,
+											"capacity": res.data[i].carContent,
+											"request_capacity": res.data[i].reqQuantity,
+											"waiting_time": res.data[i].waitTime
+										})
+
+									}
+
+									that.show_waiting_id = res.data[0].stationId;
+									console.log(that.waitingcars);
+								}
+							})
+
+					},
+					showstatus: function(index) { //查看充电桩状态
+						console.log(index);
+						this.pilelist[index].isselected = true;
+						for (var i = 0; i < this.pilelist.length; i++) {
+							if (i != index) {
+								this.pilelist[i].isselected = false;
+							}
+						}
+
+						this.show_id = this.pilelist[index].id;
+						this.show_status = this.pilelist[index].status;
+						this.show_charge_times = this.pilelist[index].charge_times;
+						this.show_total_time = this.pilelist[index].total_time;
+						this.show_total_electricity = this.pilelist[index].total_electricity;
+
+					},
+					showreport:function(index){
+						console.log(this.reportlist[index].stationId+"号充电桩报表");
+						alert(this.reportlist[index].stationId+"号充电桩\n"+"时间:"+this.reportlist[index].timeDate+"\n"+"累计充电次数:"+this.reportlist[index].totalCount+"\n"+"累计充电时间:"+this.reportlist[index].totalTime+"\n"+"累计充电量:"+this.reportlist[index].totalQuantity+"\n"+"累计充电费用:"+this.reportlist[index].totalPay1+"\n"+"累计服务费用:"+this.reportlist[index].totalPay2+"\n"+"累计总费用:"+this.reportlist[index].totalPay+"\n");
+
+					}
+				},
+				created: function() {
+					
+					//初始状态查看第一个充电桩
+					this.show_id = this.pilelist[0].id;
+					this.show_status = this.pilelist[0].status;
+					this.show_charge_times = this.pilelist[0].charge_times;
+					this.show_total_time = this.pilelist[0].total_time;
+					this.show_total_electricity = this.pilelist[0].total_electricity;
+					
+					var that=this;
+					
+					//使用 get 请求获取远程数据，浏览器执行远程 Ajax 请求会有跨域问题
+					axios.get('http://localhost:8080/admin/check')
+						.then(res => {
+							for (var i = 0; i < 5; i++) {
+								this.pilelist[i].id = res.data[i].stationId;
+								this.pilelist[i].status = res.data[i].state;
+								this.pilelist[i].charge_times = res.data[i].count;
+								this.pilelist[i].total_time = res.data[i].time;
+								this.pilelist[i].total_electricity = res.data[i].quantity;
+							}
+							console.log("充电桩状态");
+							console.log(this.pilelist);
+						})
+
+
+				
+					//在这里请求查看表单数据
+					axios.get('http://localhost:8080/admin/report')
+						.then(res => {
+							console.log(res)
+							for (var i = 0; i < res.data.length; i++) {
+								that.reportlist.push({
+									"timeDate": res.data[i].timeDate,
+									"stationId": res.data[i].stationId,
+									"totalCount": res.data[i].totalCount,
+									"totalTime": res.data[i].totalTime,
+									"totalQuantity": res.data[i].totalQuantity,
+									"totalPay1": res.data[i].totalPay1,
+									"totalPay2": res.data[i].totalPay2,
+									"totalPay": res.data[i].totalPay,
+								})
+							}
+							console.log("报表");
+							console.log(this.reportlist);
+						})
+						
+				}
+
+			})
+		</script>
+	</body>
+</html>

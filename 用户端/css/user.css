@@ -1,0 +1,18 @@
+.header{
+    height: 100px;
+    width: 100%;
+}
+.toggle{
+    height: 40px;
+    width: 100%;
+    text-align: center;
+}
+.content{
+    height: 800px;
+    width: 100%;
+}
+.navigationbar{
+    height: 80px;
+    width: 100%;
+    text-align: center;
+}
