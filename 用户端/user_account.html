@@ -5,14 +5,32 @@
 		<link rel="stylesheet" href="/css/user.css">
 	</head>
 	<body>
-		<div class="navigationbar" style="height: 80px;width: 100%;text-align: center;">
-			<button onclick="changePassword()" style="height: 40px; width: 100px;">修改密码</button>
-			<button onclick="showBills()" style="height: 40px; width: 100px;">我的订单</button>
-			<button onclick="logOut()" style="height: 40px; width: 100px;">登出</button>
+		<div id="app">
+			<div v-if="isOnline()" class="navigationbar" style="height: 80px;width: 100%;text-align: center;">
+				<button onclick="changePassword()" style="height: 40px; width: 100px;">修改密码</button>
+				<button onclick="showBills()" style="height: 40px; width: 100px;">我的订单</button>
+				<button onclick="logOut()" style="height: 40px; width: 100px;">登出</button>
+			</div>
+			<div v-else class="navigationbar" style="height: 80px;width: 100%;text-align: center;">
+				<button onclick="logIn()" style="height: 40px; width: 100px;">登录</button>
+				<button onclick="registerAccount()" style="height: 40px; width: 100px;">注册</button>
+			</div>
+			<iframe frameborder="0" id="content" width="100%"></iframe>
 		</div>
-		<iframe frameborder="0" id="content" width="100%"></iframe>
 	</body>
+	<script src="./js/vue.js"></script>
 	<script>
+		new Vue({
+			el: '#app',
+			data: {
+
+			},
+			methods: {
+				isOnline: function(){
+					return false;
+				}
+			}
+		})
 		class Bill{
 			constructor(date, elec, price){
 				this.date = date;
@@ -20,11 +38,74 @@
 				this.price = price;
 			}
 		}
+		function logIn(){
+			loginPanel = document.getElementById("content");
+			loginPanel.height = 180;
+			text = `
+			<div style="height: 240px; width: 500px;margin-left:38%;border-style:solid;background-color:white;">
+				<div style="text-align: right; display: inline-block; width: 40%;">
+					<p>账号</p>
+				</div>
+				<div style="text-align: left; display: inline-block; width: 40%;">
+					<input id="username" type='text'></input>
+				</div>
+				<div style="text-align: right; display: inline-block; width: 40%;">
+					<p>密码</p>
+				</div>
+				<div style="text-align: left; display: inline-block; width: 40%;">
+					<input id="pw" type='password'></input>
+				</div>
+				<div style="text-align: center; width: 100%;">
+					<button style="height: 40px; width: 100px;" onclick="submitLogin">提交</button>
+				</div>
+			</div>`;
+			loginPanel.contentDocument.body.innerHTML = text;
+		}
+		function submitLogin(){
+			username = document.getElementById("username").val;
+			pw = document.getElementById("pw").val;
+			
+		}
+		function registerAccount(){
+			registerPanel = document.getElementById("content");
+			registerPanel.height = 260;
+			text = 	`
+			<div style="height: 240px; width: 500px;margin-left:38%;border-style:solid;background-color:white;">
+				<div style="text-align: right; display: inline-block; width: 40%;">
+					<p>账号</p>
+				</div>
+				<div style="text-align: left; display: inline-block; width: 40%;">
+					<input id="username" type='text'></input>
+				</div>
+				<div style="text-align: right; display: inline-block; width: 40%;">
+					<p>密码</p>
+				</div>
+				<div style="text-align: left; display: inline-block; width: 40%;">
+					<input id="pw" type='password'></input>
+				</div>
+				<div style="text-align: right; display: inline-block; width: 40%;">
+					<p>确认输入密码</p>
+				</div>
+				<div style="text-align: left; display: inline-block; width: 40%;">
+					<input id="pw_confirm" type='password'></input>
+				</div>
+				<div style="text-align: center; width: 100%;">
+					<button style="height: 40px; width: 100px;" onclick="submitRegisterAccount">提交</button>
+				</div>
+			</div>`;
+			registerPanel.contentDocument.body.innerHTML = text;
+		}
+		function submitRegisterAccount(){
+			username = document.getElementById("username").val;
+			pw = document.getElementById("pw").val;
+			pw_confirm = document.getElementById("pw_confirm").val;
+			
+		}
 		function changePassword() {
 			pwPanel = document.getElementById("content");
 			pwPanel.height = 260;
 			text = 	`
-			<div style="height: 240px; width: 360px;margin-left:38%;border-style:solid;border-bottom-style:black;text-align:center;background-color:white;">
+			<div style="height: 240px; width: 500px;margin-left:38%;border-style:solid;background-color:white;">
 				<div style="text-align: right; display: inline-block; width: 40%;">
 					<p>密码</p>
 				</div>
