@@ -6,14 +6,9 @@
 	</head>
 	<body>
 		<div id="app">
-			<div v-if="online" class="navigationbar" style="height: 80px;width: 100%;text-align: center;">
-				<button @click="changePassword()" type="button" style="height: 40px; width: 100px;">修改密码</button>
+			<div class="navigationbar" style="height: 80px;width: 100%;text-align: center;">
 				<button @click="showBills()" type="button" style="height: 40px; width: 100px;">我的订单</button>
 				<button @click="logOut()" type="button" style="height: 40px; width: 100px;">登出</button>
-			</div>
-			<div v-else class="navigationbar" style="height: 80px;width: 100%;text-align: center;">
-				<button @click="logIn()" type="button" style="height: 40px; width: 100px;">登录</button>
-				<button @click="registerAccount()" type="button" style="height: 40px; width: 100px;">注册</button>
 			</div>
 			<iframe frameborder="0" id="content" width="100%"></iframe>
 		</div>
@@ -24,121 +19,9 @@
 		var app = new Vue({
 			el: '#app',
 			data: {
-				online : false,
 				
 			},
 			methods: {
-				logIn: function(){
-					loginPanel = document.getElementById("content");
-					loginPanel.height = 180;
-					text = `
-					<div style="height: 240px; width: 500px;margin-left:38%;border-style:solid;background-color:white;">
-						<div style="text-align: right; display: inline-block; width: 40%;">
-							<p>账号</p>
-						</div>
-						<div style="text-align: left; display: inline-block; width: 40%;">
-							<input id="username" type='text'></input>
-						</div>
-						<div style="text-align: right; display: inline-block; width: 40%;">
-							<p>密码</p>
-						</div>
-						<div style="text-align: left; display: inline-block; width: 40%;">
-							<input id="pw" type='password'></input>
-						</div>
-						<div style="text-align: center; width: 100%;">
-							<button style="height: 40px; width: 100px;" @click="submitLogin">提交</button>
-						</div>
-					</div>`;
-					loginPanel.contentDocument.body.innerHTML = text;
-				},
-				submitLogin: function(){
-					username = document.getElementById("username").val;
-					pw = document.getElementById("pw").val;
-					axios.put('http://127.0.0.1:4523/m1/1073322-0-default/login', {userid : username, password : pw}).then(
-						(res) => {
-							if(res.code == 200)
-							{
-								this.online = true;
-							}
-						}
-					);
-				},
-				registerAccount: function(){
-					registerPanel = document.getElementById("content");
-					registerPanel.height = 260;
-					text = 	`
-					<div style="height: 240px; width: 500px;margin-left:38%;border-style:solid;background-color:white;">
-						<div style="text-align: right; display: inline-block; width: 40%;">
-							<p>账号</p>
-						</div>
-						<div style="text-align: left; display: inline-block; width: 40%;">
-							<input id="username" type='text'></input>
-						</div>
-						<div style="text-align: right; display: inline-block; width: 40%;">
-							<p>密码</p>
-						</div>
-						<div style="text-align: left; display: inline-block; width: 40%;">
-							<input id="pw" type='password'></input>
-						</div>
-						<div style="text-align: right; display: inline-block; width: 40%;">
-							<p>确认输入密码</p>
-						</div>
-						<div style="text-align: left; display: inline-block; width: 40%;">
-							<input id="pw_confirm" type='password'></input>
-						</div>
-						<div style="text-align: center; width: 100%;">
-							<button style="height: 40px; width: 100px;" @click="submitRegisterAccount">提交</button>
-						</div>
-					</div>`;
-					registerPanel.contentDocument.body.innerHTML = text;
-				},
-				submitRegisterAccount: function(){
-					username = document.getElementById("username").val;
-					pw = document.getElementById("pw").val;
-					pw_confirm = document.getElementById("pw_confirm").val;
-					
-				},
-				changePassword: function() {
-					pwPanel = document.getElementById("content");
-					pwPanel.height = 260;
-					text = 	`
-					<div style="height: 240px; width: 500px;margin-left:38%;border-style:solid;background-color:white;">
-						<div style="text-align: right; display: inline-block; width: 40%;">
-							<p>密码</p>
-						</div>
-						<div style="text-align: left; display: inline-block; width: 40%;">
-							<input id="oldpw" type='password'></input>
-						</div>
-						<div style="text-align: right; display: inline-block; width: 40%;">
-							<p>新密码</p>
-						</div>
-						<div style="text-align: left; display: inline-block; width: 40%;">
-							<input id="newpw" type='password'></input>
-						</div>
-						<div style="text-align: right; display: inline-block; width: 40%;">
-							<p>确认输入新密码</p>
-						</div>
-						<div style="text-align: left; display: inline-block; width: 40%;">
-							<input id="newpw_confirm" type='password'></input>
-						</div>
-						<div style="text-align: center; width: 100%;">
-							<button style="height: 40px; width: 100px;" @click="submitChangePassword">提交</button>
-						</div>
-					</div>`;
-					pwPanel.contentDocument.body.innerHTML = text;
-				},
-				submitChangePassword: function(){
-					oldpw = document.getElementById("oldpw").val;
-					newpw = document.getElementById("newpw").val;
-					newpw_confirm = document.getElementById("newpw_confirm").val;
-
-					if (newpw == newpw_confirm) {
-						
-					}
-					else {
-
-					}
-				},
 				showBills: function() {
 					billsPanel = document.getElementById("content");
 					billsPanel.frameborder = "1";
@@ -155,7 +38,14 @@
 					billsPanel.contentDocument.body.innerHTML = result;
 				},
 				logOut: function(){
-					this.online = false;
+					axios.put('http://127.0.0.1:4523/m1/1073322-0-default/logout').then(
+						(res) => {
+							if(res.code == 200)
+							{
+								window.location.href = "login.html";
+							}
+						}
+					);
 				}
 			}
 		})

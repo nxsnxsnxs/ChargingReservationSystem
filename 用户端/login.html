@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<link rel="stylesheet" href="/css/user.css">
+	</head>
+	<body>
+		<div id="app">
+			<div class="navigationbar" style="height: 80px;width: 100%;text-align: center;">
+				<button @click="logIn()" type="button" style="height: 40px; width: 100px;">登录</button>
+				<button @click="registerAccount()" type="button" style="height: 40px; width: 100px;">注册</button>
+            </div>
+            <div v-if="currentPanel==1" style="height: 160px; width: 500px;margin-left:38%;border-style:solid;background-color:white;">
+                <div style="text-align: right; display: inline-block; width: 40%;">
+                    <p>账号</p>
+                </div>
+                <div style="text-align: left; display: inline-block; width: 40%;">
+                    <input id="username" type='text'></input>
+                </div>
+                <div style="text-align: right; display: inline-block; width: 40%;">
+                    <p>密码</p>
+                </div>
+                <div style="text-align: left; display: inline-block; width: 40%;">
+                    <input id="pw" type='password'></input>
+                </div>
+                <div style="text-align: center; width: 100%;">
+                    <button @click="submitLogin()" style="height: 40px; width: 100px;">提交</button>
+                </div>
+            </div>
+
+            <div v-if="currentPanel==2" style="height: 240px; width: 500px;margin-left:38%;border-style:solid;background-color:white;">
+                <div style="text-align: right; display: inline-block; width: 40%;">
+                    <p>账号</p>
+                </div>
+                <div style="text-align: left; display: inline-block; width: 40%;">
+                    <input id="username" type='text'></input>
+                </div>
+                <div style="text-align: right; display: inline-block; width: 40%;">
+                    <p>密码</p>
+                </div>
+                <div style="text-align: left; display: inline-block; width: 40%;">
+                    <input id="pw" type='password'></input>
+                </div>
+                <div style="text-align: right; display: inline-block; width: 40%;">
+                    <p>确认输入密码</p>
+                </div>
+                <div style="text-align: left; display: inline-block; width: 40%;">
+                    <input id="pw_confirm" type='password'></input>
+                </div>
+                <div style="text-align: center; width: 100%;">
+                    <button @click="submitRegisterAccount()" style="height: 40px; width: 100px;">提交</button>
+                </div>
+            </div>
+		</div>
+	</body>
+	<script src="./js/vue.js"></script>
+	<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+	<script>
+		var app = new Vue({
+			el: '#app',
+			data: {
+				currentPanel : 0,
+
+			},
+			methods: {
+				logIn: function(){
+					this.currentPanel = 1;
+				},
+				submitLogin: function(){
+					username = document.getElementById("username").value;
+					pw = document.getElementById("pw").value;
+                    window.location.href = "user_main.html";
+					axios.put('http://127.0.0.1:4523/m1/1073322-0-default/login', {userid : username, password : pw}).then(
+						(res) => {
+							if(res.code == 200)
+							{
+								window.location.href = "user_main.html";
+							}
+						}
+					);
+				},
+				registerAccount: function(){
+					this.currentPanel = 2;
+				},
+				submitRegisterAccount: function(){
+					username = document.getElementById("username").value;
+					pw = document.getElementById("pw").value;
+					pw_confirm = document.getElementById("pw_confirm").value;
+                    if(pw != pw_confirm)
+                    {
+                        location.reload();
+                        window.alert("密码输入不一致");
+                        return;
+                    }
+					axios.put('	http://127.0.0.1:4523/m1/1073322-0-default/register', {userid : username, password : pw, carContent : 10, type : "user"}).then(
+						(res) => {
+							if(res.code == 200)
+							{
+								window.location.href = "user_main.html";
+							}
+                            else if(res.code == 301)
+                            {
+                                window.alert("用户名已存在");
+                                location.reload();
+                            }
+						}
+					);
+				},
+			},
+		})
+	</script>
+</html>
