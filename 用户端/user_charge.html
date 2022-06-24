@@ -8,7 +8,6 @@
 			<div class="navigationbar" style="height: 80px;width: 100%;text-align: center;">
 				<button @click="appointment" style="height: 40px; width: 100px;">预约充电</button>
 				<button @click="changeRequest" style="height: 40px; width: 100px;">修改请求</button>
-				<button @click="cancelcharge" style="height: 40px; width: 100px;">取消订单</button>
 			</div>
 			<div v-show="showrequest">
 				<div
@@ -129,13 +128,6 @@
 						this.showchangemode =false;
 						this.showchangesum = false;
 						//向后端提交请求
-					},
-					cancelcharge:function(){
-						//向后端提出请求
-						this.showrequest = false;
-						this.showchange = false;
-						this.showchangemode =false;
-						this.showchangesum = false;
 					},
 					selectfast: function() {
 						this.chargemode = 0;

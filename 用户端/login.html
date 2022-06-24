@@ -92,7 +92,7 @@
                         window.alert("密码输入不一致");
                         return;
                     }
-					axios.put('	http://127.0.0.1:4523/m1/1073322-0-default/register', {userid : username, password : pw, carContent : 10, type : "user"}).then(
+					axios.put('http://127.0.0.1:4523/m1/1073322-0-default/register', {userid : username, password : pw, carContent : 10, type : "user"}).then(
 						(res) => {
 							if(res.code == 200)
 							{

@@ -7,10 +7,39 @@
 	<body>
 		<div id="app">
 			<div class="navigationbar" style="height: 80px;width: 100%;text-align: center;">
-				<button @click="showBills()" type="button" style="height: 40px; width: 100px;">我的订单</button>
+				<button @click="showBills()" type="button" style="height: 40px; width: 100px;">历史订单</button>
 				<button @click="logOut()" type="button" style="height: 40px; width: 100px;">登出</button>
 			</div>
-			<iframe frameborder="0" id="content" width="100%"></iframe>
+			<div v-show="currBillState!='无'" style="height: 300px;width: 100%;text-align: center;">
+				<h1 style="font-weight: bold; color: rgb(0, 255, 0);">有一笔正在进行中的订单</h1>
+				<h4 style="text-align: center;">状态    {{currBillState}}</h4>
+
+				<div v-show="currBillState=='等候区等待分配'" style="text-align: center;">
+					<h4 style="text-align: center;">等候人数   {{waitingCount}}</h4>
+				</div>
+				<div v-show="currBillState=='在充电桩等待'" style="text-align: center;">
+					<h4 style="text-align: center;">充电桩ID   {{currStationId}}</h4>
+					<h4 style="text-align: center;">等待人数   {{queueNumber}}</h4>
+				</div>
+				<div v-show="currBillState=='正在充电'" style="text-align: center;">
+					<h4 style="text-align: center;">充电时间   {{chargeDuration}}</h4>
+					<h4 style="text-align: center;">充电电量   {{currBillElec}}</h4>
+				</div>
+				<div v-show="currBillState=='等待支付'" style="text-align: center;">
+					<h3 style="text-align: center;">金额    {{currBillPrice}}</h3>
+					<h3 style="text-align: center;">充电量    {{currBillElec}}</h3>
+					<button @click="payBill()" type="button" style="height: 40px; width: 100px; text-align: center;">支付</button>
+				</div>
+				<button @click="cancelBill()" type="button" style="height: 40px; width: 100px; text-align: center;">取消</button>
+			</div>
+			<div v-show="showBill" style="height: 400px;width: 100%;text-align: center;">
+				<table border='1' width='100%'>
+					<tr><th>编号</th><th>时间</th><th>充电桩</th><th>充电度数</th><th>启动时间</th><th>停止时间</th><th>总金额</th><th>充电金额</th><th>服务费</th></tr>
+					<tr v-for="(bill, index) in historyBills">
+						<th>{{bill.billId}}</th><th>{{bill.timeStamp}}</th><th>{{bill.stationId}}</th><th>{{bill.electricQuantity}}</th><th>{{bill.startTime}}</th><th>{{bill.endTime}}</th><th>{{bill.totalFee}}</th><th>{{bill.chargeFee}}</th><th>{{bill.serveFee}}</th>
+					</tr>
+				</table>
+			</div>
 		</div>
 	</body>
 	<script src="./js/vue.js"></script>
@@ -19,23 +48,36 @@
 		var app = new Vue({
 			el: '#app',
 			data: {
-				
+				currBillState : "在充电桩等待",
+				waitingCount : 0,
+				queueNumber : 0,
+				currStationId : 0,
+				currBillPrice : 0,
+				chargeDuration : 0,
+				startChargeTime : 0,
+				expectedChargeTime : 0,
+				currBillElec : 0,
+				getCurrBillTimer : -1,
+				chargeTimer : -1,
+				chargeUpdateTimer : -1,
+
+				showBill : false,
+				historyBills : []
 			},
 			methods: {
 				showBills: function() {
-					billsPanel = document.getElementById("content");
-					billsPanel.frameborder = "1";
-					bills = [new Bill("2019-3-1 12:30", "45", "100"), new Bill("2019-3-1 12:30", "45", "100"), new Bill("2019-3-1 12:30", "45", "100")];
-					tableHeight = bills.length * 40;
-					billsPanel.height = tableHeight * 1.1;
-					result = `<table border='1' width='100%'`;
-					result += "<tr><th>时间</th><th>充电度数</th><th>金额</th></tr>"
-					for (let index = 0; index < bills.length; index++) {
-						bill = bills[index];
-						result += `<tr><th>${bill.date}</th><th>${bill.elec}</th><th>${bill.price}</th></tr>`;
+					showBill = !showBill;
+					if(showBill)
+					{
+						axios.put('http://127.0.0.1:4523/m1/1073322-0-default/getBillList').then(
+							(res) => {
+								if(res.code == 200)
+								{
+									historyBills = res.data;
+								}
+							}
+						);
 					}
-					result += "</table>";
-					billsPanel.contentDocument.body.innerHTML = result;
 				},
 				logOut: function(){
 					axios.put('http://127.0.0.1:4523/m1/1073322-0-default/logout').then(
@@ -46,7 +88,80 @@
 							}
 						}
 					);
+				},
+				getCurrBillData: function(){
+					axios.put('http://127.0.0.1:4523/m1/1073322-0-default/callId').then(
+							(callId_res) => {
+								if(callId_res.code == 200)
+								{
+									axios.put('http://127.0.0.1:4523/m1/1073322-0-default/stationId').then(
+										(stationId_res) => {
+											if(stationId_res.code == 200)
+											{
+												currBillState = "在充电桩" + stationId_res.data + "等候充电";
+												axios.put('http://127.0.0.1:4523/m1/1073322-0-default/queryWaitingInfo').then(
+													(stationQueue_res) => {
+														queueNumber = stationQueue_res.data.EsCount;
+														if(queueNumber == 0 && currBillState != "正在充电")
+														{
+															axios.put('http://127.0.0.1:4523/m1/1073322-0-default/startCharge').then(
+																(res) => {
+																	
+																}
+															)
+															currBillState = "正在充电";
+															startChargeTime = time.getTime();
+															chargeDuration = 0;
+															expectedChargeTime = stationQueue_res.data.EsTime;
+															chargeUpdateTimer = window.setInterval(updateChargeTime, 1000);
+															chargeTimer = window.setTimeout(finishCharge, expectedChargeTime * 1000);
+														}
+													}
+												)
+											}
+											else
+											{
+												currBillState = "等候区等待分配"
+												axios.put('http://127.0.0.1:4523/m1/1073322-0-default/callQueue').then(
+													(callQueue_res) => {
+														waitingCount = callQueue_res.data;
+													}
+												)
+											} 
+										}
+									)
+								}
+								else currBillState = "无";
+							}
+						);
+					},
+				updateChargeTime: function(){
+					chargeDuration += 1;
+				},
+				finishCharge : function(){
+					window.clearInterval(chargeUpdateTimer);
+					window.clearTimeout(chargeTimer);
+					currBillState = "等待支付";
+					axios.put('http://127.0.0.1:4523/m1/1073322-0-default/getBill').then(
+						(res) => {
+							currBillPrice = res.data.total;
+						}
+					)
+				},
+				cancelBill: function(){
+					axios.put('http://127.0.0.1:4523/m1/1073322-0-default/cancel').then(
+						(res) => {
+							
+						}
+					)					
+					if(currBillState == "正在充电") finishCharge();
 				}
+			},
+			created : function(){
+				getCurrBillTimer = window.setInterval(getCurrBillData, 1000);
+			},
+			destroyed : function(){
+				window.clearInterval(getCurrBillTimer);
 			}
 		})
 		class Bill{
