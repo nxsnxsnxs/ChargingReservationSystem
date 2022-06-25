@@ -48,6 +48,8 @@
 		var app = new Vue({
 			el: '#app',
 			data: {
+				username : "",
+
 				currBillState : "在充电桩等待",
 				waitingCount : 0,
 				queueNumber : 0,
@@ -66,21 +68,21 @@
 			},
 			methods: {
 				showBills: function() {
-					showBill = !showBill;
-					if(showBill)
+					this.showBill = !this.showBill;
+					if(this.showBill)
 					{
-						axios.put('http://127.0.0.1:4523/m1/1073322-0-default/getBillList').then(
+						axios.put('http://127.0.0.1:8080/getBillList', {userId : this.username}).then(
 							(res) => {
 								if(res.code == 200)
 								{
-									historyBills = res.data;
+									this.historyBills = res.data;
 								}
 							}
 						);
 					}
 				},
 				logOut: function(){
-					axios.put('http://127.0.0.1:4523/m1/1073322-0-default/logout').then(
+					axios.put('http://127.0.0.1:8080/logout', {userId : this.username}).then(
 						(res) => {
 							if(res.code == 200)
 							{
@@ -90,86 +92,84 @@
 					);
 				},
 				getCurrBillData: function(){
-					axios.put('http://127.0.0.1:4523/m1/1073322-0-default/callId').then(
+					axios.put('http://127.0.0.1:8080/callId', {userId : this.username}).then(
 							(callId_res) => {
 								if(callId_res.code == 200)
 								{
-									axios.put('http://127.0.0.1:4523/m1/1073322-0-default/stationId').then(
+									axios.put('http://127.0.0.1:8080/stationId', {userId : this.username}).then(
 										(stationId_res) => {
 											if(stationId_res.code == 200)
 											{
-												currBillState = "在充电桩" + stationId_res.data + "等候充电";
-												axios.put('http://127.0.0.1:4523/m1/1073322-0-default/queryWaitingInfo').then(
+												this.currBillState = "在充电桩" + stationId_res.data + "等候充电";
+												axios.put('http://127.0.0.1:8080/queryWaitingInfo', {userId : this.username}).then(
 													(stationQueue_res) => {
-														queueNumber = stationQueue_res.data.EsCount;
-														if(queueNumber == 0 && currBillState != "正在充电")
+														this.queueNumber = stationQueue_res.data.EsCount;
+														if(this.queueNumber == 0 && this.currBillState != "正在充电")
 														{
-															axios.put('http://127.0.0.1:4523/m1/1073322-0-default/startCharge').then(
+															axios.put('http://127.0.0.1:8080/startCharge', {userId : this.username}).then(
 																(res) => {
 																	
 																}
 															)
-															currBillState = "正在充电";
-															startChargeTime = time.getTime();
-															chargeDuration = 0;
-															expectedChargeTime = stationQueue_res.data.EsTime;
-															chargeUpdateTimer = window.setInterval(updateChargeTime, 1000);
-															chargeTimer = window.setTimeout(finishCharge, expectedChargeTime * 1000);
+															this.currBillState = "正在充电";
+															this.startChargeTime = time.getTime();
+															this.chargeDuration = 0;
+															this.expectedChargeTime = stationQueue_res.data.EsTime;
+															this.chargeUpdateTimer = window.setInterval(this.updateChargeTime, 1000);
+															this.chargeTimer = window.setTimeout(this.finishCharge, this.expectedChargeTime * 1000);
 														}
 													}
 												)
 											}
 											else
 											{
-												currBillState = "等候区等待分配"
-												axios.put('http://127.0.0.1:4523/m1/1073322-0-default/callQueue').then(
+												this.currBillState = "等候区等待分配"
+												axios.put('http://127.0.0.1:8080/callQueue', {userId : this.username}).then(
 													(callQueue_res) => {
-														waitingCount = callQueue_res.data;
+														this.waitingCount = callQueue_res.data;
 													}
 												)
 											} 
 										}
 									)
 								}
-								else currBillState = "无";
+								else this.currBillState = "无";
 							}
 						);
 					},
 				updateChargeTime: function(){
-					chargeDuration += 1;
+					this.chargeDuration += 1;
 				},
 				finishCharge : function(){
-					window.clearInterval(chargeUpdateTimer);
-					window.clearTimeout(chargeTimer);
-					currBillState = "等待支付";
-					axios.put('http://127.0.0.1:4523/m1/1073322-0-default/getBill').then(
+					window.clearInterval(this.chargeUpdateTimer);
+					window.clearTimeout(this.chargeTimer);
+					this.currBillState = "等待支付";
+					axios.put('http://127.0.0.1:8080/getBill', {userId : this.username}).then(
 						(res) => {
-							currBillPrice = res.data.total;
+							this.currBillPrice = res.data.total;
 						}
 					)
 				},
 				cancelBill: function(){
-					axios.put('http://127.0.0.1:4523/m1/1073322-0-default/cancel').then(
+					axios.put('http://127.0.0.1:8080/cancel', {userId : this.username}).then(
 						(res) => {
 							
 						}
 					)					
-					if(currBillState == "正在充电") finishCharge();
+					if(this.currBillState == "正在充电") finishCharge();
 				}
 			},
 			created : function(){
-				getCurrBillTimer = window.setInterval(getCurrBillData, 1000);
+				this.getCurrBillTimer = window.setInterval(this.getCurrBillData, 1000);
+
+				var n1 = location.href.length;
+				var n2 = location.href.indexOf("=");
+				this.username = decodeURI(location.href.substr(n2+1, n1-n2));
+			
 			},
 			destroyed : function(){
-				window.clearInterval(getCurrBillTimer);
+				window.clearInterval(this.getCurrBillTimer);
 			}
 		})
-		class Bill{
-			constructor(date, elec, price){
-				this.date = date;
-				this.elec = elec;
-				this.price = price;
-			}
-		}
 	</script>
 </html>

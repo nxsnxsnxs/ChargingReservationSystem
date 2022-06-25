@@ -69,12 +69,11 @@
 				submitLogin: function(){
 					username = document.getElementById("username").value;
 					pw = document.getElementById("pw").value;
-                    window.location.href = "user_main.html";
-					axios.put('http://127.0.0.1:4523/m1/1073322-0-default/login', {userid : username, password : pw}).then(
+					axios.put('http://127.0.0.1:8080/login', {userId : username, password : pw}).then(
 						(res) => {
 							if(res.code == 200)
 							{
-								window.location.href = "user_main.html";
+								window.location.href = "user_main.html?userId=" + username;
 							}
 						}
 					);
@@ -92,7 +91,7 @@
                         window.alert("密码输入不一致");
                         return;
                     }
-					axios.put('http://127.0.0.1:4523/m1/1073322-0-default/register', {userid : username, password : pw, carContent : 10, type : "user"}).then(
+					axios.put('http://127.0.0.1:8080/register', {userId : username, password : pw, carContent : 10, type : "user"}).then(
 						(res) => {
 							if(res.code == 200)
 							{
